@@ -1,21 +1,23 @@
 # 🛡️ Alex Gaming Central Submission Form
 
-## 📂 Submission Target
-- [ ] **Office Suite Pro** (Product Key / Code)
-- [ ] **Alex Gaming Portal** (UI / Ecosystem Inquiry)
+## 📂 Ziel des Antrags
+- [ ] **Office Suite Pro** (Product Key oder Code-Vorschlag)
+- [ ] **Alex Gaming Startseite** (Design oder Übersetzung)
+- [ ] **Allgemeine Anfrage** (Nutzungsrechte / Inquiry)
 
-## 📋 Status Check
-- [ ] I have read the **`index.html`** in the root directory.
-- [ ] I have created my subfolder within the **`PR/`** directory.
-- [ ] I have executed the **Automated Release-Check Script**.
-- [ ] I am only modifying files within the `PR/` directory.
+## 📋 Technische Checkliste
+- [ ] Ich habe die **`index.html`** im Hauptverzeichnis gelesen.
+- [ ] Ich habe einen **Unterordner** im Verzeichnis `PR/` erstellt.
+- [ ] Ich habe das Skript **`validate.sh`** lokal oder via GitHub Actions geprüft.
+- [ ] Ich habe **KEINE** Dateien außerhalb des `PR/`-Ordners verändert.
 
-## 📝 Details / Reason (!Grund)
-> [Hier Grund oder Beschreibung der Änderungen einfügen]
+## 📝 Details & Grund (!Grund)
+> **Bitte hier beschreiben:**
+> [Warum stellst du diesen Antrag? Was wurde geändert?]
 
 ---
 
-## ✅ Agreement
-- [ ] I accept the Proprietary Licenses of Alex Gaming.
-- [ ] I confirm that I am not cloning any source code for personal or unauthorized use.
-- [ ] I understand that Maintainers only check "Green" status PRs.
+## ✅ Rechtliche Zustimmung
+- [ ] Ich akzeptiere die **Alex Gaming Proprietary License**.
+- [ ] Ich bestätige, dass ich den Quellcode nicht für private Zwecke klone.
+- [ ] Ich verstehe, dass Maintainer nur PRs mit "Green Build" Status bearbeiten.
