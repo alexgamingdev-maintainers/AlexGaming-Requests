@@ -26,20 +26,22 @@ jobs:
         run: |
           echo "Checking legal agreement checkboxes..."
           
-          # Suche nach den Checkboxen [x] oder [X]
-          # Wir nutzen grep mit -z, um Zeilenumbrüche besser zu handhaben
-          CHECK1=$(echo "$PR_BODY" | grep -qi "\[x\] I accept the Alex Gaming Proprietary License" && echo "ok" || echo "miss")
-          CHECK2=$(echo "$PR_BODY" | grep -qi "\[x\] I confirm that I will not clone the source code" && echo "ok" || echo "miss")
-          CHECK3=$(echo "$PR_BODY" | grep -qi "\[x\] I understand that maintainers only process" && echo "ok" || echo "miss")
+          # Wir suchen nur nach den Kernbegriffen NACH einer aktivierten Box [x] oder [X]
+          # Das ".*" erlaubt beliebige Zeichen (wie Leerzeichen oder Punkte) am Ende.
+          CHECK1=$(echo "$PR_BODY" | grep -Ei "\[x\] I accept the Alex Gaming Proprietary" && echo "ok" || echo "miss")
+          CHECK2=$(echo "$PR_BODY" | grep -Ei "\[x\] I confirm that I will not clone" && echo "ok" || echo "miss")
+          CHECK3=$(echo "$PR_BODY" | grep -Ei "\[x\] I understand that maintainers only process" && echo "ok" || echo "miss")
+
+          echo "Status: 1:$CHECK1, 2:$CHECK2, 3:$CHECK3"
 
           if [ "$CHECK1" = "ok" ] && [ "$CHECK2" = "ok" ] && [ "$CHECK3" = "ok" ]; then
             echo "✅ Legal agreement verified."
           else
             echo "❌ ERROR: You must check all 3 boxes in the 'Legal Agreement' section!"
-            echo "Current Status: 1:$CHECK1, 2:$CHECK2, 3:$CHECK3"
+            echo "Make sure to use [x] or [X]."
             exit 1
           fi
-
+          
       - name: Validate Files and Structure
         run: |
           errors=0
