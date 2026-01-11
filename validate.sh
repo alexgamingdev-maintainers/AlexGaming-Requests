@@ -1,32 +1,28 @@
 #!/bin/bash
-# 🛡️ Alex Gaming Automated PR Validator
 
-echo "--------------------------------------------------"
-echo "🚀 Starting Alex Gaming Gatekeeper Validation..."
-echo "--------------------------------------------------"
+echo "🔍 Starting local validation..."
 
-# 1. Prüfen, ob Änderungen NUR im PR/ Ordner vorgenommen wurden
-# Wir vergleichen den aktuellen Stand mit dem Haupt-Zweig (main)
-FORBIDDEN_CHANGES=$(git diff --name-only origin/main...HEAD | grep -v "^PR/")
-
-if [ -z "$FORBIDDEN_CHANGES" ]; then
-    echo "✅ ÜBERPRÜFUNG ERFOLGREICH: Alle Änderungen liegen im PR/ Ordner."
-else
-    echo "❌ FEHLER: Unbefugte Änderungen außerhalb von PR/ erkannt!"
-    echo "Folgende Dateien dürfen nicht von dir geändert werden:"
-    echo "$FORBIDDEN_CHANGES"
-    exit 1
+# 1. Check if we are in the PR directory
+if [ ! -d "PR" ]; then
+  echo "❌ Error: Directory 'PR/' not found."
+  exit 1
 fi
 
-# 2. Prüfen, ob ein Unterordner in PR/ erstellt wurde
-SUBFOLDER_COUNT=$(find PR/ -mindepth 1 -maxdepth 1 -type d | wc -l)
-if [ "$SUBFOLDER_COUNT" -gt 0 ]; then
-    echo "✅ ÜBERPRÜFUNG ERFOLGREICH: Unterordner-Struktur gefunden."
-else
-    echo "❌ FEHLER: Bitte erstelle einen eigenen Unterordner in PR/ für deinen Antrag."
+# 2. Check JSON files
+for file in $(find PR/ -name "*.json"); do
+  jq . "$file" > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "❌ Invalid JSON syntax in: $file"
     exit 1
-fi
+  fi
+done
 
-echo "--------------------------------------------------"
-echo "🎉 VALIDIERUNG BESTANDEN: Bereit für Maintainer-Review."
-echo "--------------------------------------------------"
+# 3. Check HTML files
+for file in $(find PR/ -name "*.html"); do
+  # Einfacher Check auf Tags
+  if [[ ! $(cat "$file") == *"<html"* ]]; then
+    echo "⚠️  Warning: $file might be missing HTML tags."
+  fi
+done
+
+echo "✅ Local check passed! You can now submit your Pull Request."
