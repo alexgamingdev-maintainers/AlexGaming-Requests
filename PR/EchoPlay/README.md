@@ -1,0 +1,3 @@
+## Werbeanfrage
+- [ ] Angenommen
+- [ ] Abgelehnt
