@@ -3,6 +3,7 @@ name: "Global Request Validation"
 on:
   pull_request:
     branches: [ main ]
+    # Reagiert auf Erstellung, Bearbeitung der PR-Beschreibung und neue Commits
     types: [opened, edited, synchronize]
 
 jobs:
@@ -26,25 +27,26 @@ jobs:
         run: |
           echo "Checking legal agreement checkboxes..."
           
-          # Suche nach den Checkboxen [x] oder [X]
-          # Wir nutzen grep mit -z, um Zeilenumbrüche besser zu handhaben
-          CHECK1=$(echo "$PR_BODY" | grep -qi "\[x\] I accept the Alex Gaming Proprietary License" && echo "ok" || echo "miss")
-          CHECK2=$(echo "$PR_BODY" | grep -qi "\[x\] I confirm that I will not clone the source code" && echo "ok" || echo "miss")
-          CHECK3=$(echo "$PR_BODY" | grep -qi "\[x\] I understand that maintainers only process" && echo "ok" || echo "miss")
+          # Suche nach [x] oder [X] gefolgt vom Kerntext (ohne Satzzeichen-Zwang am Ende)
+          CHECK1=$(echo "$PR_BODY" | grep -Ei "\[x\] I accept the Alex Gaming Proprietary" && echo "ok" || echo "miss")
+          CHECK2=$(echo "$PR_BODY" | grep -Ei "\[x\] I confirm that I will not clone" && echo "ok" || echo "miss")
+          CHECK3=$(echo "$PR_BODY" | grep -Ei "\[x\] I understand that maintainers only process" && echo "ok" || echo "miss")
+
+          echo "Status: 1:$CHECK1, 2:$CHECK2, 3:$CHECK3"
 
           if [ "$CHECK1" = "ok" ] && [ "$CHECK2" = "ok" ] && [ "$CHECK3" = "ok" ]; then
             echo "✅ Legal agreement verified."
           else
             echo "❌ ERROR: You must check all 3 boxes in the 'Legal Agreement' section!"
-            echo "Current Status: 1:$CHECK1, 2:$CHECK2, 3:$CHECK3"
+            echo "Make sure to use [x] or [X] inside the brackets."
             exit 1
           fi
-
+          
       - name: Validate Files and Structure
         run: |
           errors=0
           
-          # 1. Syntax Prüfung für alle Dateien
+          # 1. Syntax Prüfung für alle Dateien im Repo
           echo "Starting syntax validation..."
           for file in $(find . -type f -not -path '*/.*'); do
             if [[ $file == *.json ]]; then
@@ -56,13 +58,14 @@ jobs:
             fi
           done
 
-          # 2. Strukturprüfung (Nur Änderungen in /PR/ oder .github/ erlaubt)
+          # 2. Strukturprüfung (Nur Änderungen in PR/ oder .github/ erlaubt)
           echo "Checking file paths..."
-          # Listet alle Dateien auf, die im Vergleich zum Main-Branch geändert wurden
+          # Vergleicht den aktuellen Branch mit dem Ziel-Branch (main)
           changed_files=$(git diff --name-only origin/main...HEAD)
           for f in $changed_files; do
-            if [[ ! $f == PR/* ]] && [[ ! $f == .github/* ]] && [[ ! $f == "validate.sh" ]]; then
-              echo "❌ ERROR: Modification of '$f' is prohibited. You can only submit files inside the 'PR/' folder."
+            # Ausnahmen für Systemdateien und den PR-Ordner
+            if [[ ! $f == PR/* ]] && [[ ! $f == .github/* ]] && [[ ! $f == "validate.sh" ]] && [[ ! $f == "README.md" ]]; then
+              echo "❌ ERROR: Modification of '$f' is prohibited. Please only submit files inside the 'PR/' folder."
               errors=$((errors+1))
             fi
           done
